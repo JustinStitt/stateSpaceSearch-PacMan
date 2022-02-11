@@ -18,6 +18,8 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+from game import Directions
+
 
 class SearchProblem:
     """
@@ -72,6 +74,24 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+def dfsHelper(problem, state, pact = None, visited = set()):
+    """
+    helper function for dfs
+    used to carry over recursive stack trace args
+    and return final path
+    """
+    path = []
+    if problem.isGoalState(state):
+        return [pact]
+    for succ, act, _cost in problem.getSuccessors(state):
+        if succ in visited: continue
+        visited.add(succ)
+        res = dfsHelper(problem, succ, act, visited)
+        if len(res) > 0:
+            path = [act] + res + path
+    return path
+
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -86,13 +106,22 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return dfsHelper(problem, problem.getStartState())
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    Q = [[problem.getStartState(), []]]
+    visited = set([problem.getStartState()])
+
+    while len(Q) > 0:
+        top = Q.pop()
+        if problem.isGoalState(top[0]):
+            return top[1]
+        for succ, act, _cost in problem.getSuccessors(top[0]):
+            if succ in visited: continue
+            visited.add(succ)
+            Q.insert(0, [succ, top[1]+[act]])
+    return []
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
