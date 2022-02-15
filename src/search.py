@@ -126,11 +126,10 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    Q = util.PriorityQueueWithFunction(problem.getCostOfActions)
+    Q = util.PriorityQueue()
     paths = dict()
-    Q.push(problem.getStartState())
+    Q.push(problem.getStartState(), 0)
     vis = set([problem.getStartState()])
-
     while not Q.isEmpty():
         best = Q.pop()
         if problem.isGoalState(best):
@@ -138,9 +137,9 @@ def uniformCostSearch(problem):
         for succ, act, cost in problem.getSuccessors(best):
             if succ in vis: continue
             vis.add(succ)
-            Q.push(succ)
+            Q.push(succ, cost)
             if paths.get(succ, 0) == 0:
-                paths[succ] = [act]
+                paths[succ] = paths.get(best, []) + [act]
             else:
                 paths[succ].append(act)
     return max(paths.items(), key = lambda x: len(x[1]))
