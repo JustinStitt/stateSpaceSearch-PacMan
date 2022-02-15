@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -123,10 +123,28 @@ def breadthFirstSearch(problem):
             Q.insert(0, [succ, top[1]+[act]])
     return []
 
+
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    Q = util.PriorityQueueWithFunction(problem.getCostOfActions)
+    paths = dict()
+    Q.push(problem.getStartState())
+    vis = set([problem.getStartState()])
+
+    while not Q.isEmpty():
+        best = Q.pop()
+        if problem.isGoalState(best):
+            return paths[best]
+        for succ, act, cost in problem.getSuccessors(best):
+            if succ in vis: continue
+            vis.add(succ)
+            Q.push(succ)
+            if paths.get(succ, 0) == 0:
+                paths[succ] = [act]
+            else:
+                paths[succ].append(act)
+    return max(paths.items(), key = lambda x: len(x[1]))
+
 
 def nullHeuristic(state, problem=None):
     """
