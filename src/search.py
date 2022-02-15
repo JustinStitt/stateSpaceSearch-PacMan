@@ -92,7 +92,7 @@ def dfsHelper(problem, state, pact = None, visited = set()):
     return path
 
 
-def depthFirstSearch(problem):
+def _depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
 
@@ -107,6 +107,20 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     return dfsHelper(problem, problem.getStartState())
+
+def depthFirstSearch(problem):
+    stk = [[problem.getStartState(), []]]
+    vis = set()
+
+    while len(stk) > 0:
+        top = stk.pop()
+        if top[0] in vis: continue
+        vis.add(top[0])
+        if problem.isGoalState(top[0]):
+            return top[1]
+        for succ, act, _cost in problem.getSuccessors(top[0]):
+            stk.append([succ, top[1]+[act]])
+    return []
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -154,8 +168,23 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    Q = util.PriorityQueue()
+    paths = dict()
+    Q.push(problem.getStartState(), 0 + heuristic(problem.getStartState(), problem))
+    vis = set([problem.getStartState()])
+    while not Q.isEmpty():
+        best = Q.pop()
+        if problem.isGoalState(best):
+            return paths[best]
+        for succ, act, cost in problem.getSuccessors(best):
+            if succ in vis: continue
+            vis.add(succ)
+            Q.push(succ, cost + heuristic(best, problem))
+            if paths.get(succ, 0) == 0:
+                paths[succ] = paths.get(best, []) + [act]
+            else:
+                paths[succ].append(act)
+    return max(paths.items(), key = lambda x: len(x[1]))
 
 
 # Abbreviations
