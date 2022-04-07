@@ -1,3 +1,5 @@
 *.pdf
 __pycache__
 *.swp
+submission-4-6-2022-stitt/*
+*.zip
