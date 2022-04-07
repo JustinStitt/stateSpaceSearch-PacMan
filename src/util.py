@@ -190,6 +190,18 @@ class PriorityQueue:
     def isEmpty(self):
         return len(self.heap) == 0
 
+    def getIdx(self, item):   
+        count = 0
+        for _,_,listItem in self.heap:
+            if listItem == item:
+                return count
+            count = count + 1
+
+    def changePriority(self, item, new_priority):
+        idx = self.getIdx(item)
+        self.heap.pop(idx)
+        self.push(item, new_priority)
+
     def update(self, item, priority):
         # If item already in priority queue with higher priority, update its priority and rebuild the heap.
         # If item already in priority queue with equal or lower priority, do nothing.

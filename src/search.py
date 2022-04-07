@@ -124,19 +124,19 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    Q = [[problem.getStartState(), []]]
-    visited = set([problem.getStartState()])
+    start_state = problem.getStartState()
+    Q = [[start_state, []]] # state, path
+    visited = set([start_state])
 
     while len(Q) > 0:
         top = Q.pop()
         if problem.isGoalState(top[0]):
-            return top[1]
+            return top[1] # return path
         for succ, act, _cost in problem.getSuccessors(top[0]):
             if succ in visited: continue
             visited.add(succ)
             Q.insert(0, [succ, top[1]+[act]])
     return []
-
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -144,19 +144,23 @@ def uniformCostSearch(problem):
     paths = dict()
     Q.push(problem.getStartState(), 0)
     vis = set([problem.getStartState()])
+    distances = {problem.getStartState() : 0}
     while not Q.isEmpty():
         best = Q.pop()
+        path_cost = distances[best]
+        vis.add(best) # maybe move to top
         if problem.isGoalState(best):
             return paths[best]
         for succ, act, cost in problem.getSuccessors(best):
             if succ in vis: continue
-            vis.add(succ)
-            Q.push(succ, cost)
-            if paths.get(succ, 0) == 0:
-                paths[succ] = paths.get(best, []) + [act]
+            if succ in distances and distances[succ] < cost + path_cost: continue
+            if succ in distances:
+                Q.changePriority(succ, path_cost + cost)
             else:
-                paths[succ].append(act)
-    return max(paths.items(), key = lambda x: len(x[1]))
+                Q.push(succ, cost + path_cost)
+            distances[succ] = cost + path_cost
+            paths[succ] = paths.get(best, []) + [act]
+    return []
 
 
 def nullHeuristic(state, problem=None):
@@ -170,21 +174,25 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     Q = util.PriorityQueue()
     paths = dict()
-    Q.push(problem.getStartState(), 0 + heuristic(problem.getStartState(), problem))
+    Q.push(problem.getStartState(), heuristic(problem.getStartState(), problem))
     vis = set([problem.getStartState()])
+    distances = {problem.getStartState() : 0}
     while not Q.isEmpty():
         best = Q.pop()
+        path_cost = distances[best]
+        vis.add(best) # maybe move to top
         if problem.isGoalState(best):
             return paths[best]
         for succ, act, cost in problem.getSuccessors(best):
             if succ in vis: continue
-            vis.add(succ)
-            Q.push(succ, cost + heuristic(best, problem))
-            if paths.get(succ, 0) == 0:
-                paths[succ] = paths.get(best, []) + [act]
+            if succ in distances and distances[succ] < cost + path_cost: continue
+            if succ in distances:
+                Q.changePriority(succ, path_cost + cost + heuristic(succ, problem))
             else:
-                paths[succ].append(act)
-    return max(paths.items(), key = lambda x: len(x[1]))
+                Q.push(succ, cost + path_cost + heuristic(succ, problem))
+            distances[succ] = cost + path_cost
+            paths[succ] = paths.get(best, []) + [act]
+    return []
 
 
 # Abbreviations
